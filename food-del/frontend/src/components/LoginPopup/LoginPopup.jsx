@@ -24,7 +24,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
     const onLogin = async (e) => {
         e.preventDefault()
-
+        console.log("FORM SUBMITTED");
         let new_url = url;
         if (currState === "Login") {
             new_url += "/api/user/login";
@@ -32,7 +32,9 @@ const LoginPopup = ({ setShowLogin }) => {
         else {
             new_url += "/api/user/register"
         }
+        console.log("URL", new_url);
         const response = await axios.post(new_url, data);
+        console.log("result from server", response);
         if (response.data.success) {
             setToken(response.data.token)
             localStorage.setItem("token", response.data.token)
