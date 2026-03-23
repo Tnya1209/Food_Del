@@ -1,6 +1,22 @@
 import foodModel from "../models/foodModel.js";
+import cloudinary from "../config/cloudinary.js";
+import streamifier from "streamifier";
 import fs from 'fs'
 
+
+const uploadToCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "food-del" },
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
+
+    streamifier.createReadStream(fileBuffer).pipe(stream);
+  });
+};
 // all food list
 const listFood = async (req, res) => {
     try {
@@ -17,14 +33,15 @@ const listFood = async (req, res) => {
 const addFood = async (req, res) => {
 
     try {
-        let image_filename = `${req.file.filename}`
+        // let image_filename = `${req.file.filename}`
+        const result= await uploadToCloudinary(req.file.buffer);
 
         const food = new foodModel({
             name: req.body.name,
             description: req.body.description,
             price: req.body.price,
             category:req.body.category,
-            image: image_filename,
+            image: result.secure_url,
         })
 
         await food.save();
